@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link, useLocation } from "react-router-dom";
 import { 
   Users, 
   Heart, 
@@ -20,27 +21,32 @@ const navItems = [
 ];
 
 export function VetNavigation() {
+  const location = useLocation();
+  
   return (
     <nav className="bg-card border-b shadow-card">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <Heart className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
               VetPro CRM
             </h1>
-          </div>
+          </Link>
           
           <div className="flex gap-2 ml-auto">
             {navItems.map((item) => (
               <Button 
                 key={item.path}
-                variant={item.path === "/" ? "default" : "ghost"}
+                variant={location.pathname === item.path ? "default" : "ghost"}
                 size="sm"
                 className="gap-2 transition-all hover:medical-glow"
+                asChild
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                <Link to={item.path}>
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
               </Button>
             ))}
           </div>

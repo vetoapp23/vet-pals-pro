@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Heart, Users, Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/vet-hero.jpg";
 
 export function HeroSection() {
@@ -29,15 +30,19 @@ export function HeroSection() {
           </div>
           
           <div className="flex gap-4">
-            <Button size="lg" className="gap-2 medical-glow">
-              <Users className="h-5 w-5" />
-              Nouveau Client
-              <ArrowRight className="h-4 w-4" />
+            <Button size="lg" className="gap-2 medical-glow" asChild>
+              <Link to="/clients">
+                <Users className="h-5 w-5" />
+                Nouveau Client
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </Button>
             
-            <Button variant="outline" size="lg" className="gap-2">
-              <Calendar className="h-5 w-5" />
-              Planifier RDV
+            <Button variant="outline" size="lg" className="gap-2" asChild>
+              <Link to="/appointments">
+                <Calendar className="h-5 w-5" />
+                Planifier RDV
+              </Link>
             </Button>
           </div>
           
