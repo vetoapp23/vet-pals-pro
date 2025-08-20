@@ -17,7 +17,7 @@ export function HeroSection() {
             </div>
             
             <h1 className="text-4xl font-bold leading-tight">
-              Bienvenue sur votre
+              Bienvenue Dr. Martin,
               <span className="gradient-primary bg-clip-text text-transparent block">
                 Dashboard VetPro
               </span>

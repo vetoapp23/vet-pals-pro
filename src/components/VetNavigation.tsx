@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { icon: Home, label: "Dashboard", path: "/" },
+  { icon: Home, label: "Dashboard", path: "/dashboard" },
   { icon: Users, label: "Clients", path: "/clients" },
   { icon: Heart, label: "Animaux", path: "/pets" },
   { icon: Calendar, label: "Rendez-vous", path: "/appointments" },
@@ -27,7 +27,7 @@ export function VetNavigation() {
     <nav className="bg-card border-b shadow-card">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/dashboard" className="flex items-center gap-2">
             <Heart className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
               VetPro CRM

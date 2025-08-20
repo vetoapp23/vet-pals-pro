@@ -4,7 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { VetNavigation } from "@/components/VetNavigation";
-import Index from "./pages/Index";
+import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import Pets from "./pages/Pets";
 import Appointments from "./pages/Appointments";
@@ -22,15 +23,50 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <div className="min-h-screen bg-background">
-          <VetNavigation />
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/clients" element={<Clients />} />
-            <Route path="/pets" element={<Pets />} />
-            <Route path="/appointments" element={<Appointments />} />
-            <Route path="/consultations" element={<Consultations />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/farm" element={<Farm />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/dashboard" element={
+              <>
+                <VetNavigation />
+                <Dashboard />
+              </>
+            } />
+            <Route path="/clients" element={
+              <>
+                <VetNavigation />
+                <Clients />
+              </>
+            } />
+            <Route path="/pets" element={
+              <>
+                <VetNavigation />
+                <Pets />
+              </>
+            } />
+            <Route path="/appointments" element={
+              <>
+                <VetNavigation />
+                <Appointments />
+              </>
+            } />
+            <Route path="/consultations" element={
+              <>
+                <VetNavigation />
+                <Consultations />
+              </>
+            } />
+            <Route path="/history" element={
+              <>
+                <VetNavigation />
+                <History />
+              </>
+            } />
+            <Route path="/farm" element={
+              <>
+                <VetNavigation />
+                <Farm />
+              </>
+            } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
