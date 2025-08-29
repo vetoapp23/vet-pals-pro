@@ -60,7 +60,7 @@ export default function Landing() {
                 </Button>
                 
                 <Button variant="outline" size="lg" className="gap-2" asChild>
-                  <Link to="/demo">
+                  <Link to="/login">
                     Voir la démo
                   </Link>
                 </Button>
