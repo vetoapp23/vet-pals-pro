@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Plus, Search, Phone, Mail, MapPin, Eye, Edit, Heart } from "lucide-react";
+import { NewClientModal } from "@/components/forms/NewClientModal";
 
 const clients = [
   {
@@ -53,6 +54,7 @@ const clients = [
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [showClientModal, setShowClientModal] = useState(false);
 
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -70,7 +72,7 @@ const Clients = () => {
           </p>
         </div>
         
-        <Button className="gap-2 medical-glow">
+        <Button className="gap-2 medical-glow" onClick={() => setShowClientModal(true)}>
           <Plus className="h-4 w-4" />
           Nouveau Client
         </Button>
@@ -164,6 +166,11 @@ const Clients = () => {
           </Card>
         ))}
       </div>
+      
+      <NewClientModal 
+        open={showClientModal} 
+        onOpenChange={setShowClientModal} 
+      />
     </div>
   );
 };

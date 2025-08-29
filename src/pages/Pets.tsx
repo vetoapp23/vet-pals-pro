@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Heart, User, Calendar, Camera } from "lucide-react";
+import { Plus, Search, Heart, User, Calendar, Camera, Stethoscope } from "lucide-react";
+import { NewPetModal } from "@/components/forms/NewPetModal";
+import { NewConsultationModal } from "@/components/forms/NewConsultationModal";
 
 const pets = [
   {
@@ -68,6 +70,8 @@ const Pets = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [showPetModal, setShowPetModal] = useState(false);
+  const [showConsultationModal, setShowConsultationModal] = useState(false);
 
   const filteredPets = pets.filter(pet => {
     const matchesSearch = pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -89,7 +93,7 @@ const Pets = () => {
           </p>
         </div>
         
-        <Button className="gap-2 medical-glow">
+        <Button className="gap-2 medical-glow" onClick={() => setShowPetModal(true)}>
           <Plus className="h-4 w-4" />
           Nouvel Animal
         </Button>
@@ -211,7 +215,8 @@ const Pets = () => {
                   <Button size="sm" variant="outline" className="flex-1">
                     Voir Dossier
                   </Button>
-                  <Button size="sm" className="flex-1">
+                  <Button size="sm" className="flex-1" onClick={() => setShowConsultationModal(true)}>
+                    <Stethoscope className="h-4 w-4 mr-2" />
                     Nouvelle Consultation
                   </Button>
                 </div>
@@ -220,6 +225,16 @@ const Pets = () => {
           </Card>
         ))}
       </div>
+      
+      <NewPetModal 
+        open={showPetModal} 
+        onOpenChange={setShowPetModal} 
+      />
+      
+      <NewConsultationModal 
+        open={showConsultationModal} 
+        onOpenChange={setShowConsultationModal} 
+      />
     </div>
   );
 };

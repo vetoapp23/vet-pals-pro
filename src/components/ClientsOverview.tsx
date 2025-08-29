@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Phone, Mail, MapPin, Plus } from "lucide-react";
+import { useState } from "react";
+import { NewClientModal } from "@/components/forms/NewClientModal";
 
 const recentClients = [
   {
@@ -35,11 +37,14 @@ const recentClients = [
 ];
 
 export function ClientsOverview() {
+  const [showClientModal, setShowClientModal] = useState(false);
+  
   return (
-    <Card className="card-hover">
+    <>
+      <Card className="card-hover">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-semibold">Clients Récents</CardTitle>
-        <Button size="sm" className="gap-2">
+        <Button size="sm" className="gap-2" onClick={() => setShowClientModal(true)}>
           <Plus className="h-4 w-4" />
           Nouveau Client
         </Button>
@@ -88,5 +93,11 @@ export function ClientsOverview() {
         ))}
       </CardContent>
     </Card>
+    
+    <NewClientModal 
+      open={showClientModal} 
+      onOpenChange={setShowClientModal} 
+    />
+    </>
   );
 }

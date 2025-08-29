@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Calendar as CalendarIcon, Clock, User, Heart, Phone } from "lucide-react";
+import { NewAppointmentModal } from "@/components/forms/NewAppointmentModal";
 
 const appointments = [
   {
@@ -67,6 +68,7 @@ const statusStyles = {
 const Appointments = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filterStatus, setFilterStatus] = useState("all");
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
 
   const filteredAppointments = appointments.filter(apt => {
     const aptDate = new Date(apt.date);
@@ -93,7 +95,7 @@ const Appointments = () => {
           </p>
         </div>
         
-        <Button className="gap-2 medical-glow">
+        <Button className="gap-2 medical-glow" onClick={() => setShowAppointmentModal(true)}>
           <Plus className="h-4 w-4" />
           Nouveau RDV
         </Button>
@@ -228,6 +230,11 @@ const Appointments = () => {
           </div>
         </div>
       </div>
+      
+      <NewAppointmentModal 
+        open={showAppointmentModal} 
+        onOpenChange={setShowAppointmentModal} 
+      />
     </div>
   );
 };

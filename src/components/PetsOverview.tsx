@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Heart, Plus, Calendar } from "lucide-react";
+import { useState } from "react";
+import { NewPetModal } from "@/components/forms/NewPetModal";
 
 const recentPets = [
   {
@@ -44,11 +46,14 @@ const statusStyles = {
 };
 
 export function PetsOverview() {
+  const [showPetModal, setShowPetModal] = useState(false);
+  
   return (
-    <Card className="card-hover">
+    <>
+      <Card className="card-hover">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-semibold">Animaux Récents</CardTitle>
-        <Button size="sm" className="gap-2">
+        <Button size="sm" className="gap-2" onClick={() => setShowPetModal(true)}>
           <Plus className="h-4 w-4" />
           Nouvel Animal
         </Button>
@@ -94,5 +99,11 @@ export function PetsOverview() {
         ))}
       </CardContent>
     </Card>
+    
+    <NewPetModal 
+      open={showPetModal} 
+      onOpenChange={setShowPetModal} 
+    />
+    </>
   );
 }
