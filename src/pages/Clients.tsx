@@ -6,61 +6,38 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Plus, Search, Phone, Mail, MapPin, Eye, Edit, Heart } from "lucide-react";
 import { NewClientModal } from "@/components/forms/NewClientModal";
+import { ClientViewModal } from "@/components/modals/ClientViewModal";
+import { ClientEditModal } from "@/components/modals/ClientEditModal";
+import { ClientProvider, useClients, Client } from "@/contexts/ClientContext";
 
-const clients = [
-  {
-    id: 1,
-    name: "Marie Dubois",
-    email: "marie.dubois@email.com",
-    phone: "06 12 34 56 78",
-    address: "123 Rue de la Paix, 75001 Paris",
-    city: "Paris",
-    pets: [
-      { name: "Bella", type: "Chien", breed: "Golden Retriever" },
-      { name: "Minou", type: "Chat", breed: "Européen" }
-    ],
-    lastVisit: "2024-01-15",
-    totalVisits: 12
-  },
-  {
-    id: 2,
-    name: "Jean Martin",
-    email: "jean.martin@email.com", 
-    phone: "06 98 76 54 32",
-    address: "45 Avenue des Roses, 69000 Lyon",
-    city: "Lyon",
-    pets: [
-      { name: "Whiskers", type: "Chat", breed: "Persan" }
-    ],
-    lastVisit: "2024-01-10",
-    totalVisits: 8
-  },
-  {
-    id: 3,
-    name: "Sophie Leroux",
-    email: "sophie.leroux@email.com",
-    phone: "06 45 67 89 12",
-    address: "78 Boulevard Maritime, 13000 Marseille",
-    city: "Marseille", 
-    pets: [
-      { name: "Rex", type: "Chien", breed: "Berger Allemand" },
-      { name: "Luna", type: "Chat", breed: "Maine Coon" },
-      { name: "Kiwi", type: "Oiseau", breed: "Perruche" }
-    ],
-    lastVisit: "2024-01-18",
-    totalVisits: 15
-  }
-];
-
-const Clients = () => {
+const ClientsContent = () => {
+  const { clients } = useClients();
   const [searchTerm, setSearchTerm] = useState("");
   const [showClientModal, setShowClientModal] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.city.toLowerCase().includes(searchTerm.toLowerCase())
+    (client.city && client.city.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const handleView = (client: Client) => {
+    setSelectedClient(client);
+    setShowViewModal(true);
+  };
+
+  const handleEdit = (client: Client) => {
+    setSelectedClient(client);
+    setShowEditModal(true);
+  };
+
+  const handleEditFromView = () => {
+    setShowViewModal(false);
+    setShowEditModal(true);
+  };
 
   return (
     <div className="container mx-auto px-6 py-8 space-y-8">
@@ -152,11 +129,11 @@ const Clients = () => {
                 </div>
                 
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="gap-2">
+                  <Button size="sm" variant="outline" className="gap-2" onClick={() => handleView(client)}>
                     <Eye className="h-4 w-4" />
                     Voir
                   </Button>
-                  <Button size="sm" variant="outline" className="gap-2">
+                  <Button size="sm" variant="outline" className="gap-2" onClick={() => handleEdit(client)}>
                     <Edit className="h-4 w-4" />
                     Modifier
                   </Button>
@@ -171,7 +148,28 @@ const Clients = () => {
         open={showClientModal} 
         onOpenChange={setShowClientModal} 
       />
+      
+      <ClientViewModal
+        open={showViewModal}
+        onOpenChange={setShowViewModal}
+        client={selectedClient}
+        onEdit={handleEditFromView}
+      />
+      
+      <ClientEditModal
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        client={selectedClient}
+      />
     </div>
+  );
+};
+
+const Clients = () => {
+  return (
+    <ClientProvider>
+      <ClientsContent />
+    </ClientProvider>
   );
 };
 

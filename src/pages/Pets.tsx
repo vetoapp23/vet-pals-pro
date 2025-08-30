@@ -5,60 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Heart, User, Calendar, Camera, Stethoscope } from "lucide-react";
+import { Plus, Search, Heart, User, Calendar, Camera, Stethoscope, Eye, Edit } from "lucide-react";
 import { NewPetModal } from "@/components/forms/NewPetModal";
 import { NewConsultationModal } from "@/components/forms/NewConsultationModal";
-
-const pets = [
-  {
-    id: 1,
-    name: "Bella",
-    type: "Chien",
-    breed: "Golden Retriever",
-    age: "3 ans",
-    weight: "28 kg",
-    color: "Doré",
-    owner: "Marie Dubois",
-    ownerId: 1,
-    status: "healthy",
-    lastVisit: "2024-01-15",
-    nextAppointment: "2024-01-25",
-    microchip: "982000123456789",
-    vaccinations: ["Rage", "DHPP", "Lyme"]
-  },
-  {
-    id: 2,
-    name: "Whiskers", 
-    type: "Chat",
-    breed: "Persan",
-    age: "5 ans",
-    weight: "4.5 kg",
-    color: "Blanc",
-    owner: "Jean Martin",
-    ownerId: 2,
-    status: "treatment",
-    lastVisit: "2024-01-10",
-    nextAppointment: "2024-01-22",
-    microchip: "982000987654321",
-    vaccinations: ["Rage", "FVRCP"]
-  },
-  {
-    id: 3,
-    name: "Rex",
-    type: "Chien", 
-    breed: "Berger Allemand",
-    age: "7 ans",
-    weight: "32 kg",
-    color: "Noir et feu",
-    owner: "Sophie Leroux",
-    ownerId: 3,
-    status: "healthy",
-    lastVisit: "2024-01-18",
-    nextAppointment: "2024-02-01",
-    microchip: "982000555444333",
-    vaccinations: ["Rage", "DHPP", "Bordetella"]
-  }
-];
+import { PetViewModal } from "@/components/modals/PetViewModal";
+import { PetEditModal } from "@/components/modals/PetEditModal";
+import { PetDossierModal } from "@/components/modals/PetDossierModal";
+import { ClientProvider, useClients, Pet } from "@/contexts/ClientContext";
 
 const statusStyles = {
   healthy: "bg-secondary text-secondary-foreground",
@@ -66,22 +19,52 @@ const statusStyles = {
   urgent: "bg-destructive text-destructive-foreground"
 };
 
-const Pets = () => {
+const PetsContent = () => {
+  const { pets } = useClients();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [showPetModal, setShowPetModal] = useState(false);
   const [showConsultationModal, setShowConsultationModal] = useState(false);
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDossierModal, setShowDossierModal] = useState(false);
 
   const filteredPets = pets.filter(pet => {
     const matchesSearch = pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         pet.breed.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (pet.breed && pet.breed.toLowerCase().includes(searchTerm.toLowerCase())) ||
                          pet.owner.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "all" || pet.type.toLowerCase() === filterType.toLowerCase();
     const matchesStatus = filterStatus === "all" || pet.status === filterStatus;
     
     return matchesSearch && matchesType && matchesStatus;
   });
+
+  const handleView = (pet: Pet) => {
+    setSelectedPet(pet);
+    setShowViewModal(true);
+  };
+
+  const handleEdit = (pet: Pet) => {
+    setSelectedPet(pet);
+    setShowEditModal(true);
+  };
+
+  const handleEditFromView = () => {
+    setShowViewModal(false);
+    setShowEditModal(true);
+  };
+
+  const handleShowDossier = (pet: Pet) => {
+    setSelectedPet(pet);
+    setShowDossierModal(true);
+  };
+
+  const handleShowDossierFromView = () => {
+    setShowViewModal(false);
+    setShowDossierModal(true);
+  };
 
   return (
     <div className="container mx-auto px-6 py-8 space-y-8">
@@ -196,23 +179,38 @@ const Pets = () => {
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>Prochain RDV: {new Date(pet.nextAppointment).toLocaleDateString('fr-FR')}</span>
+                    <span>Prochain RDV: {pet.nextAppointment ? new Date(pet.nextAppointment).toLocaleDateString('fr-FR') : 'Aucun'}</span>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   <h4 className="font-medium text-sm">Vaccinations:</h4>
                   <div className="flex gap-1 flex-wrap">
-                    {pet.vaccinations.map((vacc, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {vacc}
-                      </Badge>
-                    ))}
+                    {pet.vaccinations && pet.vaccinations.length > 0 ? (
+                      pet.vaccinations.map((vacc, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {vacc}
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Aucune vaccination enregistrée</span>
+                    )}
                   </div>
                 </div>
                 
+                <div className="flex gap-2 mb-2">
+                  <Button size="sm" variant="outline" className="gap-2" onClick={() => handleView(pet)}>
+                    <Eye className="h-4 w-4" />
+                    Voir
+                  </Button>
+                  <Button size="sm" variant="outline" className="gap-2" onClick={() => handleEdit(pet)}>
+                    <Edit className="h-4 w-4" />
+                    Modifier
+                  </Button>
+                </div>
+                
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => handleShowDossier(pet)}>
                     Voir Dossier
                   </Button>
                   <Button size="sm" className="flex-1" onClick={() => setShowConsultationModal(true)}>
@@ -235,7 +233,35 @@ const Pets = () => {
         open={showConsultationModal} 
         onOpenChange={setShowConsultationModal} 
       />
+      
+      <PetViewModal
+        open={showViewModal}
+        onOpenChange={setShowViewModal}
+        pet={selectedPet}
+        onEdit={handleEditFromView}
+        onShowDossier={handleShowDossierFromView}
+      />
+      
+      <PetEditModal
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        pet={selectedPet}
+      />
+      
+      <PetDossierModal
+        open={showDossierModal}
+        onOpenChange={setShowDossierModal}
+        pet={selectedPet}
+      />
     </div>
+  );
+};
+
+const Pets = () => {
+  return (
+    <ClientProvider>
+      <PetsContent />
+    </ClientProvider>
   );
 };
 

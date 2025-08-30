@@ -1,19 +1,20 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useClients } from "@/contexts/ClientContext";
+import { Client, useClients } from "@/contexts/ClientContext";
 
-interface NewClientModalProps {
+interface ClientEditModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  client: Client | null;
 }
 
-export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
-  const { addClient } = useClients();
+export function ClientEditModal({ open, onOpenChange, client }: ClientEditModalProps) {
+  const { updateClient } = useClients();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     firstName: "",
@@ -26,6 +27,21 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
     notes: ""
   });
 
+  useEffect(() => {
+    if (client) {
+      setFormData({
+        firstName: client.firstName,
+        lastName: client.lastName,
+        email: client.email,
+        phone: client.phone,
+        address: client.address || "",
+        city: client.city || "",
+        postalCode: client.postalCode || "",
+        notes: client.notes || ""
+      });
+    }
+  }, [client]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
       ...prev,
@@ -36,40 +52,25 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Add client to context
-    addClient({
-      ...formData,
-      name: `${formData.firstName} ${formData.lastName}`
-    });
+    if (!client) return;
+    
+    updateClient(client.id, formData);
     
     toast({
-      title: "Client ajouté",
-      description: `${formData.firstName} ${formData.lastName} a été ajouté avec succès.`,
-    });
-    
-    // Reset form
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      address: "",
-      city: "",
-      postalCode: "",
-      notes: ""
+      title: "Client modifié",
+      description: `Les informations de ${formData.firstName} ${formData.lastName} ont été mises à jour.`,
     });
     
     onOpenChange(false);
   };
 
+  if (!client) return null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Nouveau Client</DialogTitle>
-          <DialogDescription>
-            Ajoutez un nouveau client à votre base de données.
-          </DialogDescription>
+          <DialogTitle>Modifier Client</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -159,7 +160,7 @@ export function NewClientModal({ open, onOpenChange }: NewClientModalProps) {
               Annuler
             </Button>
             <Button type="submit">
-              Ajouter Client
+              Sauvegarder
             </Button>
           </div>
         </form>

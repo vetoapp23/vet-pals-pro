@@ -1,20 +1,21 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useClients } from "@/contexts/ClientContext";
+import { Pet, useClients } from "@/contexts/ClientContext";
 
-interface NewPetModalProps {
+interface PetEditModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  pet: Pet | null;
 }
 
-export function NewPetModal({ open, onOpenChange }: NewPetModalProps) {
-  const { addPet, clients } = useClients();
+export function PetEditModal({ open, onOpenChange, pet }: PetEditModalProps) {
+  const { updatePet, clients } = useClients();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
@@ -25,8 +26,26 @@ export function NewPetModal({ open, onOpenChange }: NewPetModalProps) {
     color: "",
     ownerId: 0,
     microchip: "",
-    medicalNotes: ""
+    medicalNotes: "",
+    status: "healthy" as "healthy" | "treatment" | "urgent"
   });
+
+  useEffect(() => {
+    if (pet) {
+      setFormData({
+        name: pet.name,
+        type: pet.type,
+        breed: pet.breed || "",
+        age: pet.age || "",
+        weight: pet.weight || "",
+        color: pet.color || "",
+        ownerId: pet.ownerId,
+        microchip: pet.microchip || "",
+        medicalNotes: pet.medicalNotes || "",
+        status: pet.status
+      });
+    }
+  }, [pet]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
@@ -45,51 +64,30 @@ export function NewPetModal({ open, onOpenChange }: NewPetModalProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const owner = clients.find(c => c.id === formData.ownerId);
-    if (!owner) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner un propriétaire valide.",
-      });
-      return;
-    }
+    if (!pet) return;
     
-    // Add pet to context
-    addPet({
+    const owner = clients.find(c => c.id === formData.ownerId);
+    
+    updatePet(pet.id, {
       ...formData,
-      owner: owner.name,
-      status: 'healthy'
+      owner: owner?.name || pet.owner
     });
     
     toast({
-      title: "Animal ajouté",
-      description: `${formData.name} a été ajouté avec succès.`,
-    });
-    
-    // Reset form
-    setFormData({
-      name: "",
-      type: "",
-      breed: "",
-      age: "",
-      weight: "",
-      color: "",
-      ownerId: 0,
-      microchip: "",
-      medicalNotes: ""
+      title: "Animal modifié",
+      description: `Les informations de ${formData.name} ont été mises à jour.`,
     });
     
     onOpenChange(false);
   };
 
+  if (!pet) return null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Nouvel Animal</DialogTitle>
-          <DialogDescription>
-            Ajoutez un nouvel animal à votre base de données.
-          </DialogDescription>
+          <DialogTitle>Modifier Animal</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -107,7 +105,7 @@ export function NewPetModal({ open, onOpenChange }: NewPetModalProps) {
               <Label>Type d'animal *</Label>
               <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner le type" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Chien">Chien</SelectItem>
@@ -161,20 +159,35 @@ export function NewPetModal({ open, onOpenChange }: NewPetModalProps) {
             </div>
           </div>
           
-          <div className="space-y-2">
-            <Label>Propriétaire *</Label>
-            <Select value={formData.ownerId.toString()} onValueChange={(value) => handleSelectChange("ownerId", value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner le propriétaire" />
-              </SelectTrigger>
-              <SelectContent>
-                {clients.map(client => (
-                  <SelectItem key={client.id} value={client.id.toString()}>
-                    {client.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Propriétaire *</Label>
+              <Select value={formData.ownerId.toString()} onValueChange={(value) => handleSelectChange("ownerId", value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients.map(client => (
+                    <SelectItem key={client.id} value={client.id.toString()}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Statut de santé</Label>
+              <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="healthy">En bonne santé</SelectItem>
+                  <SelectItem value="treatment">En traitement</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           
           <div className="space-y-2">
@@ -201,7 +214,7 @@ export function NewPetModal({ open, onOpenChange }: NewPetModalProps) {
               Annuler
             </Button>
             <Button type="submit">
-              Ajouter Animal
+              Sauvegarder
             </Button>
           </div>
         </form>
